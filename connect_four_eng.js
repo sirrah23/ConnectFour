@@ -94,25 +94,21 @@ ConnectFour.prototype.make_move = function(col){
 ConnectFour.prototype.scan_winner = function(){
     let potential_winner;
 
-    console.log("Column scan");
     potential_winner = this.scan_winner_col();
     if(potential_winner !== -1){
         return potential_winner;
     }
 
-    console.log("Row scan");
     potential_winner = this.scan_winner_row();
     if(potential_winner !== -1){
         return potential_winner;
     }
 
-    console.log("Diag-left scan");
     potential_winner = this.scan_winner_diag_left();
     if(potential_winner !== -1){
         return potential_winner;
     }
 
-    console.log("Diag-right scan");
     potential_winner = this.scan_winner_diag_right();
     if(potential_winner !== -1){
         return potential_winner;
@@ -296,8 +292,4 @@ ConnectFour.prototype.scan_winner_diag_right = function(){
     return -1;
 };
 
-
-
-const c4 = new ConnectFour();
-console.log(c4.scan_winner());
-console.log(c4.toString());
+module.exports = ConnectFour;
