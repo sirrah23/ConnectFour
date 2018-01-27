@@ -23,6 +23,7 @@ function ConnectFour(){
 /**
 * Drop the current player's piece into the column
 */
+
 ConnectFour.prototype.drop_piece = function(col){
     const empty_row = this.find_empty_row(col);
     if(empty_row === -1){
@@ -116,28 +117,72 @@ ConnectFour.prototype.scan_winner = function(){
     return -1;
 };
 
-ConnectFour.prototype.scan_winner_col = function(){
-    let potential_winner, stream_size;
-    for(let i = 0; i < this.cols; i++){
+
+ConnectFour.prototype.scan_in_dir = function(start_x, start_y, step_x, step_y, mode){
+    if (!["ACROSS", "DOWN"].includes(mode))
+        throw "Bad input mode";
+
+    const pos = (function(){
+        let _col_pos = start_y;
+        let _row_pos = start_x;
+
+        return {
+            col_pos(){
+                return _col_pos;
+            },
+            row_pos(){
+                return _row_pos;
+            },
+            dir(mode){
+                return mode === "ACROSS" ? _col_pos : _row_pos;
+            },
+
+            inc_mode_pos(mode){
+                mode === "ACROSS" ? _col_pos++ : _row_pos++;
+            }
+        };
+    })();
+    const limit = mode === "ACROSS" ? this.cols : this.rows;
+    let potential_winner, stream_size, step;
+
+    for(; pos.dir(mode) < limit; pos.inc_mode_pos(mode)){
         potential_winner = null;
         stream_size = null;
-        for(let j = 0; j < this.rows; j++){
-            if (this.board[i][j] === 0){
+        step = 0;
+        while(true){
+            let stepped_col = pos.col_pos() + (step_y * step);
+            let stepped_row = pos.row_pos() + (step_x * step);
+            if (
+                (stepped_col < 0) ||
+                (stepped_col > this.cols) ||
+                (stepped_row < 0) ||
+                (stepped_row > this.rows)
+               ){
+                break;
+            }
+            if (this.board[stepped_col][stepped_row] === 0){
                 potential_winner = null;
                 stream_size = null;
-            } else if(this.board[i][j] === potential_winner){
+            } else if (this.board[stepped_col][stepped_row] === potential_winner){
                 stream_size++;
             } else {
-                potential_winner = this.board[i][j];
+                potential_winner = this.board[stepped_col][stepped_row];
                 stream_size = 1;
             }
 
             if(stream_size === 4){
                 return potential_winner;
             }
+
+            step++;
         }
     }
     return -1;
+};
+
+
+ConnectFour.prototype.scan_winner_col = function(){
+    return this.scan_in_dir(0, 0, 1, 0, "ACROSS");
 };
 
 
@@ -291,5 +336,6 @@ ConnectFour.prototype.scan_winner_diag_right = function(){
 
     return -1;
 };
+
 
 module.exports = ConnectFour;
