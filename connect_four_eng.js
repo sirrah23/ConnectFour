@@ -118,8 +118,18 @@ ConnectFour.prototype.scan_winner = function(){
 };
 
 
+/**
+ *
+ * @param {int} start_x
+ * @param {int} start_y
+ * @param {int} step_x
+ * @param {int} step_y
+ * @param {string} mode
+ * Starting from given point on the board scans in an specified direction
+ * to determine if any player has won the game yet.
+ */
 ConnectFour.prototype.scan_in_dir = function(start_x, start_y, step_x, step_y, mode){
-    if (!["ACROSS", "DOWN"].includes(mode))
+    if (!["ACROSS", "DOWN", "BACKROSS"].includes(mode))
         throw "Bad input mode";
 
     const pos = (function(){
@@ -134,18 +144,40 @@ ConnectFour.prototype.scan_in_dir = function(start_x, start_y, step_x, step_y, m
                 return _row_pos;
             },
             dir(mode){
-                return mode === "ACROSS" ? _col_pos : _row_pos;
+                if(mode === "ACROSS" || mode === "BACKROSS"){
+                    return _col_pos;
+                } else if (mode === "DOWN"){
+                    return _row_pos;
+                }
             },
-
             inc_mode_pos(mode){
-                mode === "ACROSS" ? _col_pos++ : _row_pos++;
+                if(mode === "ACROSS"){
+                    _col_pos++;
+                }
+                else if (mode === "DOWN"){
+                    _row_pos++;
+                }
+                else{
+                    _col_pos--;
+                }
+            },
+            comp_mode_pos(limit){
+                if(mode === "ACROSS"){
+                    return _col_pos < limit;
+                } else if (mode === "DOWN"){
+                    return _row_pos < limit;
+                } else {
+                    return _col_pos > 0;
+                }
             }
         };
     })();
-    const limit = mode === "ACROSS" ? this.cols : this.rows;
+
+    // TODO: Move limit into pos object
+    const limit = (mode === "ACROSS" || mode === "BACKROSS") ? this.cols : this.rows;
     let potential_winner, stream_size, step;
 
-    for(; pos.dir(mode) < limit; pos.inc_mode_pos(mode)){
+    for(; pos.comp_mode_pos(limit); pos.inc_mode_pos(mode)){
         potential_winner = null;
         stream_size = null;
         step = 0;
@@ -154,9 +186,9 @@ ConnectFour.prototype.scan_in_dir = function(start_x, start_y, step_x, step_y, m
             let stepped_row = pos.row_pos() + (step_x * step);
             if (
                 (stepped_col < 0) ||
-                (stepped_col > this.cols) ||
+                (stepped_col >= this.cols) ||
                 (stepped_row < 0) ||
-                (stepped_row > this.rows)
+                (stepped_row >= this.rows)
                ){
                 break;
             }
@@ -187,153 +219,37 @@ ConnectFour.prototype.scan_winner_col = function(){
 
 
 ConnectFour.prototype.scan_winner_row = function(){
-    let potential_winner, stream_size;
-    for(let i = 0; i < this.rows; i++){
-        potential_winner = null;
-        stream_size = null;
-        for(let j = 0; j < this.cols; j++){
-            if (this.board[j][i] === 0){
-                potential_winner = null;
-                stream_size = null;
-            } else if(this.board[j][i] === potential_winner){
-                stream_size++;
-            } else {
-                potential_winner = this.board[j][i];
-                stream_size = 1;
-            }
-
-            if(stream_size === 4){
-                return potential_winner;
-            }
-        }
-    }
-    return -1;
+    return this.scan_in_dir(0, 0, 0, 1, "DOWN");
 };
 
 
 ConnectFour.prototype.scan_winner_diag_left = function(){
-    let potential_winner, stream_size, step;
-    let row_pos, col_pos;
-
-    //Scan by walking down first column
-    row_pos = 0, col_pos = 0;
-    for(; row_pos < this.rows; row_pos++){
-        potential_winner = null;
-        stream_size = null;
-        step = 0;
-        while(true){
-            if ((row_pos + step > this.rows) || (col_pos + step > this.cols)){
-                break;
-            }
-            if (this.board[row_pos + step][col_pos + step] === 0){
-                potential_winner = null;
-                stream_size = null;
-            } else if (this.board[row_pos + step][col_pos + step] === potential_winner){
-                stream_size++;
-            } else {
-                potential_winner = this.board[row_pos + step][col_pos + step];
-                stream_size = 1;
-            }
-
-            if(stream_size === 4){
-                return potential_winner;
-            }
-
-            step++;
-        }
+    let res;
+    res = this.scan_in_dir(0, 0, 1, 1, "ACROSS");
+    if (res !== -1){
+        return res;
     }
 
-    //Scan by walking across first row
-    row_pos = 0, col_pos = 0;
-    for(; col_pos < this.cols; col_pos++){
-        potential_winner = null;
-        stream_size = null;
-        step = 0;
-        while(true){
-            if ((row_pos + step > this.rows) || (col_pos + step > this.cols)){
-                break;
-            }
-            if (this.board[row_pos + step][col_pos + step] === 0){
-                potential_winner = null;
-                stream_size = null;
-            } else if (this.board[row_pos + step][col_pos + step] === potential_winner){
-                stream_size++;
-            } else {
-                potential_winner = this.board[row_pos + step][col_pos + step];
-                stream_size = 1;
-            }
-
-            if(stream_size === 4){
-                return potential_winner;
-            }
-
-            step++;
-        }
+    res = this.scan_in_dir(0, 0, 1, 1, "DOWN");
+    if (res !== -1){
+        return res;
     }
 
     return -1;
 };
 
+
 ConnectFour.prototype.scan_winner_diag_right = function(){
-    let potential_winner, stream_size, step;
-    let row_pos, col_pos;
-
-    //Scan by walking down last column
-    row_pos = 0, col_pos = this.cols-1;
-    for(; row_pos < this.rows; row_pos++){
-        potential_winner = null;
-        stream_size = null;
-        step = 0;
-        while(true){
-            if ((row_pos + step > this.rows) || (col_pos - step < 0)){
-                break;
-            }
-            if (this.board[row_pos + step][col_pos - step] === 0){
-                potential_winner = null;
-                stream_size = null;
-            } else if (this.board[row_pos + step][col_pos - step] === potential_winner){
-                stream_size++;
-            } else {
-                potential_winner = this.board[row_pos + step][col_pos - step];
-                stream_size = 1;
-            }
-
-            if(stream_size === 4){
-                return potential_winner;
-            }
-
-            step++;
-        }
+    let res;
+    res = this.scan_in_dir(0, this.cols-1, 1, -1, "BACKROSS");
+    if(res !== -1){
+        return res;
     }
 
-    //Scan by walking across first row backwards
-    row_pos = 0, col_pos = this.cols-1;
-    for(; col_pos >= 0; col_pos--){
-        potential_winner = null;
-        stream_size = null;
-        step = 0;
-        while(true){
-            if ((row_pos + step > this.rows) || (col_pos - step < 0)){
-                break;
-            }
-            if (this.board[row_pos + step][col_pos - step] === 0){
-                potential_winner = null;
-                stream_size = null;
-            } else if (this.board[row_pos + step][col_pos - step] === potential_winner){
-                stream_size++;
-            } else {
-                potential_winner = this.board[row_pos + step][col_pos - step];
-                stream_size = 1;
-            }
-
-            if(stream_size === 4){
-                return potential_winner;
-            }
-
-            step++;
-        }
+    res = this.scan_in_dir(0, this.cols-1, 1, -1, "DOWN");
+    if(res !== -1){
+        return res;
     }
-
     return -1;
 };
 
