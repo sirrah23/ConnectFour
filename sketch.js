@@ -1,7 +1,10 @@
+let cols, rows, board;
+
 function setup() {
-	createCanvas(windowWidth, windowHeight);
+	  createCanvas(1000, 1000);
+    board = new Board(width, height, 7, 6);
 }
 
 function draw() {
-    ellipse(width/2, height/2, 80, 80);
+    board.draw();
 }
