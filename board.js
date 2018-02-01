@@ -16,8 +16,8 @@ function Board(width, height, numCols, numRows){
 
 Board.prototype.draw = function(){
     background(0, 0, 205);
-    for(let j = 0; j < 7; j++){
-        for(let i = 0; i < 6; i++){
+    for(let i = 0; i < 7; i++){
+        for(let j = 0; j < 6; j++){
             this.drawPiece(i, j);
         }
     }
@@ -37,9 +37,19 @@ Board.prototype.draw = function(){
 };
 
 Board.prototype.drawPiece = function(i, j){
-    ellipse(this.rows*i + 50, this.cols*j + 50, 100, 100);
+    ellipse(this.cols*i + 75, this.rows*j + 75, 100, 100);
 };
 
 Board.prototype.addPiece = function(player, col, row){
     this.pieces.push(new Piece(player, col, row));
 };
+
+Board.prototype.ComputeColumn = function(x_pos){
+    let j;
+    for(j = 0; j < this.numCols; j++){
+        if((j*this.cols) > x_pos){
+            return j-1;
+        }
+    }
+    return j-1;
+}

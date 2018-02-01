@@ -27,10 +27,10 @@ function ConnectFour(){
 ConnectFour.prototype.drop_piece = function(col){
     const empty_row = this.find_empty_row(col);
     if(empty_row === -1){
-        return false;
+        return {success: false};
     }
-    this.board[col][this.find_empty_row(col)] = this.curr_player;
-    return true;
+    this.board[col][empty_row] = this.curr_player;
+    return {success: true, row: empty_row, col: col};
 };
 
 
@@ -57,7 +57,7 @@ ConnectFour.prototype.toString = function(){
     let board_str = '';
     let curr_row = '';
     for(let row=0; row < this.rows; row++){
-        for(let col = 0; col < this.cols; col++){
+         for(let col = 0; col < this.cols; col++){
             curr_row = curr_row +  this.board[col][row] + ' ';
         }
         curr_row += '\n';
@@ -84,8 +84,12 @@ ConnectFour.prototype.switch_player = function(){
 * Official game move - drop a piece and then make it the next player's turn.
 */
 ConnectFour.prototype.make_move = function(col){
-    this.drop_piece(col);
-    this.switch_player();
+    const drop_res = this.drop_piece(col);
+    const move_player = this.curr_player;
+    if (drop_res.success === true){
+        this.switch_player();
+    }
+    return Object.assign({}, drop_res, {player: move_player});
 };
 
 
@@ -254,4 +258,8 @@ ConnectFour.prototype.scan_winner_diag_right = function(){
 };
 
 
-module.exports = ConnectFour;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined'){
+    module.exports = ConnectFour;
+} else {
+    window.ConnectFourEngine = ConnectFour;
+}
