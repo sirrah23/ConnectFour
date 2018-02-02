@@ -1,4 +1,4 @@
-let cols, rows, board, engine, winner;
+let cols, rows, board, engine, winner, gameOver;
 
 
 function mouseClicked(){
@@ -10,6 +10,7 @@ function mouseClicked(){
     if(move_res.success){
         board.addPiece(move_res.player, move_res.row, move_res.col);
         winner = engine.scan_winner();
+        gameOver = engine.game_over();
     }
 }
 
@@ -23,17 +24,21 @@ function gameOverCheck(){
     //Game over?
     //TODO: Fix this up
     //NOTE: 3/8 is a magic # :)
+    if(!gameOver){
+        return;
+    }
     push();
     fill(255);
     textSize(32);
     if(winner === 1){
         text('Player RED wins!', width * (3/8), height/2);
-        noLoop();
     } else if (winner === 2){
         text('Player BLACK wins!', width * (3/8), height/2);
-        noLoop();
+    } else {
+        text('DRAW', width * (3/8), height/2);
     }
     pop();
+    noLoop();
 }
 
 function draw() {

@@ -8,6 +8,8 @@ function ConnectFour(){
     this.cols = 7;
     this.rows = 6;
     this.board = new Array(this.cols);
+    this.max_pieces = this.cols * this.rows;
+    this.piece_count = 0;
     for(let i = 0; i < this.cols; i++){
         this.board[i] = new Array(this.rows);
     }
@@ -22,15 +24,26 @@ function ConnectFour(){
 
 
 /**
+* Check to see if the game is over.
+*/
+ConnectFour.prototype.game_over = function(){
+    return (this.piece_count === this.max_pieces) || this.winner;
+};
+
+
+/**
 * Drop the current player's piece into the column
 */
-
 ConnectFour.prototype.drop_piece = function(col){
+    if(this.piece_count === this.max_pieces){
+        return {success: false};
+    }
     const empty_row = this.find_empty_row(col);
     if(empty_row === -1){
         return {success: false};
     }
     this.board[col][empty_row] = this.curr_player;
+    this.piece_count++;
     return {success: true, row: empty_row, col: col};
 };
 
