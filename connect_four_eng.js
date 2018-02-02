@@ -17,6 +17,7 @@ function ConnectFour(){
         }
     }
     this.curr_player = PLAYER_ONE;
+    this.winner = null;
 }
 
 
@@ -97,25 +98,32 @@ ConnectFour.prototype.make_move = function(col){
 * Scan the board to see if anyone has won yet.
 */
 ConnectFour.prototype.scan_winner = function(){
+    if(this.winner)
+        return this.winner;
+
     let potential_winner;
 
     potential_winner = this.scan_winner_col();
     if(potential_winner !== -1){
+        this.winner = potential_winner;
         return potential_winner;
     }
 
     potential_winner = this.scan_winner_row();
     if(potential_winner !== -1){
+        this.winner = potential_winner;
         return potential_winner;
     }
 
     potential_winner = this.scan_winner_diag_left();
     if(potential_winner !== -1){
+        this.winner = potential_winner;
         return potential_winner;
     }
 
     potential_winner = this.scan_winner_diag_right();
     if(potential_winner !== -1){
+        this.winner = potential_winner;
         return potential_winner;
     }
     return -1;
