@@ -1,5 +1,5 @@
 const assert = require('assert');
-const ConnectFour = require('../connect_four_eng.js');
+const ConnectFour = require('../src/connect_four_eng.js');
 
 describe('there are no winners', function(){
     it('should return -1 when there is no winner on the board, row only', function(){
