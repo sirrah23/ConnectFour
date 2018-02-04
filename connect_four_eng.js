@@ -26,7 +26,7 @@ function ConnectFour(){
 /**
 * Check to see if the game is over.
 */
-ConnectFour.prototype.game_over = function(){
+ConnectFour.prototype.gameOver = function(){
     return (this.piece_count === this.max_pieces) || this.winner;
 };
 
@@ -34,11 +34,11 @@ ConnectFour.prototype.game_over = function(){
 /**
 * Drop the current player's piece into the column
 */
-ConnectFour.prototype.drop_piece = function(col){
+ConnectFour.prototype.dropPiece = function(col){
     if(this.piece_count === this.max_pieces){
         return {success: false};
     }
-    const empty_row = this.find_empty_row(col);
+    const empty_row = this.findEmptyRow(col);
     if(empty_row === -1){
         return {success: false};
     }
@@ -52,7 +52,7 @@ ConnectFour.prototype.drop_piece = function(col){
 * Find's the first non-empty row in a column directly above a piece or at
 * the bottom.
 */
-ConnectFour.prototype.find_empty_row = function(col){
+ConnectFour.prototype.findEmptyRow = function(col){
     if(this.board[col][0] !== 0){
         return -1;
     }
@@ -85,7 +85,7 @@ ConnectFour.prototype.toString = function(){
 /**
 * Toggle the current player
 */
-ConnectFour.prototype.switch_player = function(){
+ConnectFour.prototype.switchPlayer = function(){
     if(this.curr_player === PLAYER_ONE){
         this.curr_player = PLAYER_TWO;
     } else {
@@ -97,11 +97,11 @@ ConnectFour.prototype.switch_player = function(){
 /**
 * Official game move - drop a piece and then make it the next player's turn.
 */
-ConnectFour.prototype.make_move = function(col){
-    const drop_res = this.drop_piece(col);
+ConnectFour.prototype.makeMove = function(col){
+    const drop_res = this.dropPiece(col);
     const move_player = this.curr_player;
     if (drop_res.success === true){
-        this.switch_player();
+        this.switchPlayer();
     }
     return Object.assign({}, drop_res, {player: move_player});
 };
@@ -110,31 +110,31 @@ ConnectFour.prototype.make_move = function(col){
 /**
 * Scan the board to see if anyone has won yet.
 */
-ConnectFour.prototype.scan_winner = function(){
+ConnectFour.prototype.scanWinner = function(){
     if(this.winner)
         return this.winner;
 
     let potential_winner;
 
-    potential_winner = this.scan_winner_col();
+    potential_winner = this.scanWinnerCol();
     if(potential_winner !== -1){
         this.winner = potential_winner;
         return potential_winner;
     }
 
-    potential_winner = this.scan_winner_row();
+    potential_winner = this.scanWinnerRow();
     if(potential_winner !== -1){
         this.winner = potential_winner;
         return potential_winner;
     }
 
-    potential_winner = this.scan_winner_diag_left();
+    potential_winner = this.scanWinnerDiagLeft();
     if(potential_winner !== -1){
         this.winner = potential_winner;
         return potential_winner;
     }
 
-    potential_winner = this.scan_winner_diag_right();
+    potential_winner = this.scanWinnerDiagRight();
     if(potential_winner !== -1){
         this.winner = potential_winner;
         return potential_winner;
@@ -153,7 +153,7 @@ ConnectFour.prototype.scan_winner = function(){
  * Starting from given point on the board scans in an specified direction
  * to determine if any player has won the game yet.
  */
-ConnectFour.prototype.scan_in_dir = function(start_x, start_y, step_x, step_y, mode){
+ConnectFour.prototype.scanInDir = function(start_x, start_y, step_x, step_y, mode){
     if (!["ACROSS", "DOWN", "BACKROSS"].includes(mode))
         throw "Bad input mode";
 
@@ -238,24 +238,24 @@ ConnectFour.prototype.scan_in_dir = function(start_x, start_y, step_x, step_y, m
 };
 
 
-ConnectFour.prototype.scan_winner_col = function(){
-    return this.scan_in_dir(0, 0, 1, 0, "ACROSS");
+ConnectFour.prototype.scanWinnerCol = function(){
+    return this.scanInDir(0, 0, 1, 0, "ACROSS");
 };
 
 
-ConnectFour.prototype.scan_winner_row = function(){
-    return this.scan_in_dir(0, 0, 0, 1, "DOWN");
+ConnectFour.prototype.scanWinnerRow = function(){
+    return this.scanInDir(0, 0, 0, 1, "DOWN");
 };
 
 
-ConnectFour.prototype.scan_winner_diag_left = function(){
+ConnectFour.prototype.scanWinnerDiagLeft = function(){
     let res;
-    res = this.scan_in_dir(0, 0, 1, 1, "ACROSS");
+    res = this.scanInDir(0, 0, 1, 1, "ACROSS");
     if (res !== -1){
         return res;
     }
 
-    res = this.scan_in_dir(0, 0, 1, 1, "DOWN");
+    res = this.scanInDir(0, 0, 1, 1, "DOWN");
     if (res !== -1){
         return res;
     }
@@ -264,14 +264,14 @@ ConnectFour.prototype.scan_winner_diag_left = function(){
 };
 
 
-ConnectFour.prototype.scan_winner_diag_right = function(){
+ConnectFour.prototype.scanWinnerDiagRight = function(){
     let res;
-    res = this.scan_in_dir(0, this.cols-1, 1, -1, "BACKROSS");
+    res = this.scanInDir(0, this.cols-1, 1, -1, "BACKROSS");
     if(res !== -1){
         return res;
     }
 
-    res = this.scan_in_dir(0, this.cols-1, 1, -1, "DOWN");
+    res = this.scanInDir(0, this.cols-1, 1, -1, "DOWN");
     if(res !== -1){
         return res;
     }

@@ -6,11 +6,11 @@ function mouseClicked(){
         return;
     }
     const clicked_col = board.ComputeColumn(mouseX);
-    const move_res = engine.make_move(clicked_col);
+    const move_res = engine.makeMove(clicked_col);
     if(move_res.success){
         board.addPiece(move_res.player, move_res.row, move_res.col);
-        winner = engine.scan_winner();
-        gameOver = engine.game_over();
+        winner = engine.scanWinner();
+        gameOver = engine.gameOver();
     }
 }
 
